@@ -1,16 +1,20 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class SoundManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public static SoundManager Instance { get; private set; }
+    AudioSource audioSource;
 
-    // Update is called once per frame
-    void Update()
+    public AudioClip[] sounds;
+    void Awake()
     {
-        
+        Instance = this;
+        audioSource = GetComponent<AudioSource>();
+    }
+    public void PlaySounds(int _index)
+    {
+        Debug.Log("Sonido de clic");
+        audioSource.PlayOneShot(sounds[_index]);
     }
 }

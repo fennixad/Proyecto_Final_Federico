@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    public GameState CurrentGameState { get; private set; } = GameState.Initial_Menu;
 
     private void Awake()
     {
@@ -12,8 +14,7 @@ public class GameManager : MonoBehaviour
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            //
+     
             transform.GetChild(0).gameObject.SetActive(true);
         }
         else
@@ -22,14 +23,71 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.P)) Instance.PauseGame();
+
+    }
+
+    public void PlayableSceneLoad()
+    {
+        SceneManager.LoadScene(1);
+        SetGameState(CurrentGameState);
+    }
+
+    public void MainMenuSceneLoad()
+    {
+        SceneManager.LoadScene(0);
+        SetGameState(GameState.Initial_Menu);
+    }
+    public void SetGameState(GameState newState)
+    {
+        CurrentGameState = newState;
+        switch (newState)
+        {
+            case GameState.Initial_Menu:
+                Debug.Log("Estado del juego: Menu Inicial");
+                break;
+            case GameState.Charging:
+                Debug.Log("Estado del juego: Cargando...");
+                break;
+            case GameState.Playing:
+                Debug.Log("Estado del juego: Jugando");
+                break;
+            case GameState.Pause:
+                Debug.Log("Estado del juego: Pausa");
+                MusicManager.Instance.PlayMusic(1, .125f, true);
+                PauseManager.Instance.MenuHallVisibility(true);
+                Time.timeScale = 0f;
+                break;
+            case GameState.GameOver:
+                Debug.Log("Estado del juego: Game Over");
+                break;
+            case GameState.Nivel_Completed:
+                Debug.Log("Estado del juego: Nivel Completado");
+                break;
+            default:
+                Debug.LogError("Estado del juego no reconocido: " + newState);
+                break;
+        }
+    }
+    public void PauseGame()
+    {
+        if (CurrentGameState == GameState.Initial_Menu) SetGameState(GameState.Pause);
+        else if (CurrentGameState == GameState.Pause)
+        {
+            PauseManager.Instance.MenuHallVisibility(false);
+            SetGameState(GameState.Playing);
+        }
+    }
+    public enum GameState
+    {
+        None = 0,
+        Initial_Menu = 1,
+        Charging = 2,
+        Playing = 3,
+        Pause = 4,
+        GameOver = 5,
+        Nivel_Completed = 6
     }
 }

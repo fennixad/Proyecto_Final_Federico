@@ -1,16 +1,46 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class MusicManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static MusicManager Instance { get; private set; }
+
+    AudioSource audioSource;
+    public AudioClip[] musics;
+
+    private void Awake()
     {
-        
+        Instance = this;
+        audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void PlayMusic(int _index, float _volume, bool _loop)
     {
-        
+        if (audioSource.clip != null && audioSource.clip != musics[_index])
+        {
+            Debug.Log("Pista nueva, se reproduce desde le principio");
+            audioSource.clip = musics[_index];
+            audioSource.loop = _loop;
+            audioSource.volume = _volume;
+            audioSource.Play();
+        }
+        else
+        {
+            audioSource.volume = _volume;
+            Debug.Log("Pista ya en uso, se omite la reproduccion desde el principio");
+        }
+
+        if (audioSource.clip == null)
+        {
+            audioSource.clip = musics[_index];
+            audioSource.loop = _loop;
+            audioSource.volume = _volume;
+
+            audioSource.Play();
+        }
+    }
+    public void ChangeVolumen(float _volumen)
+    {
+        audioSource.volume = _volumen;
     }
 }
