@@ -1,16 +1,19 @@
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void PlayButton()
     {
-        
+        SceneManager.LoadScene(1);
+        SoundManager.Instance.PlaySounds(0);
     }
-
-    // Update is called once per frame
-    void Update()
+    public void ExitButton()
     {
-        
+        SoundManager.Instance.PlaySounds(0);
+        Application.Quit();
     }
 }
