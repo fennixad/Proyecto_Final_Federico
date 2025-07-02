@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
+
+/*
 public class PlayerController : MonoBehaviour
 {
     Custom_Actions input;
@@ -157,6 +159,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Deseleccionado.");
             }
             */
+/*
 
             Debug.Log("Click fuera de una capa clickeable.");
         }
@@ -185,4 +188,244 @@ public class PlayerController : MonoBehaviour
             animator.Play("IDLE");
         }
     }
+}
+*/
+public class PlayerController : MonoBehaviour
+{
+    Custom_Actions input; // Referencia a la clase generada por Input System
+    NavMeshAgent agent;
+    Animator animator;
+
+    // --- CAMBIOS AQUÍ ---
+    // Prefabs de los efectos de selección para objetos específicos (clic izquierdo)
+    [Header("Select Click Effects")]
+    public SelectEffectEntry[] selectEffectsByLayer; // Array para efectos de selección según la capa del objeto
+    private Dictionary<int, ParticleSystem> layerToSelectEffectMap; // Para mapear Layers a ParticleSystems de selección
+    // --- FIN CAMBIOS ---
+
+    private GameObject currentInstantiatedSelectEffect; // Instancia actual del efecto de selección (el que queda sobre el objeto)
+    private GameObject currentlySelectedObject; // El GameObject actualmente seleccionado por clic izquierdo
+
+    [Header("Movement Settings")]
+    [SerializeField] LayerMask clickableLayers; // Capas en las que el jugador puede hacer clic para moverse o seleccionar
+
+    [Header("Move Click Effect")]
+    public ParticleSystem movementClickEffect; // El efecto para clics con botón derecho (movimiento), shader si lo tienes en el prefab
+
+    // NOTA: 'specificClickEffects' ya no se usa, lo usaremos para los efectos de SELECCIÓN.
+    // Dejaré la variable para que no dé errores si la tenías configurada en el Inspector,
+    // pero la renombraré y la moveré al contexto correcto.
+    // private Dictionary<int, ParticleSystem> layerToClickEffectMap; // Este ya no es necesario aquí, ya que 'movementClickEffect' es único.
+
+    float lookRotationSpeed = 8f;
+    private bool isRightClickPressed = false; // Bandera para movimiento continuo con clic derecho
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+
+        input = new Custom_Actions(); // Inicializa tu Input Action Map
+        InitializeSelectEffectMap(); // Ahora inicializamos el mapa para los efectos de selección
+    }
+
+    private void OnEnable()
+    {
+        input.Enable(); // Habilita las acciones de Input
+        AssignInputs(); // Asigna los callbacks de Input
+    }
+
+    private void OnDisable()
+    {
+        input.Disable(); // Deshabilita las acciones de Input
+    }
+
+    // Método para inicializar el diccionario de efectos de SELECCIÓN
+    private void InitializeSelectEffectMap()
+    {
+        layerToSelectEffectMap = new Dictionary<int, ParticleSystem>();
+        if (selectEffectsByLayer != null)
+        {
+            foreach (var entry in selectEffectsByLayer)
+            {
+                if (entry.effectPrefab != null)
+                {
+                    // Convertir el LayerMask a un valor de bit para usar como clave
+                    // targetLayer.value ya debería ser el valor de bit si es una LayerMask de una sola capa
+                    layerToSelectEffectMap[entry.targetLayer.value] = entry.effectPrefab;
+                }
+            }
+        }
+    }
+
+    // Asigna los métodos a los eventos del Input System
+    void AssignInputs()
+    {
+        input.Main.Move.started += ctx => OnMoveStarted(ctx);
+        input.Main.Move.performed += ctx => OnMovePerformed(ctx);
+        input.Main.Move.canceled += ctx => OnMoveCanceled(ctx);
+
+        input.Select.Select.performed += ctx => ClickToTarget();
+        input.Select.Interact.performed += ctx => OnInteractPressed();
+    }
+
+    private void Update()
+    {
+        FaceTarget(); // Mantiene al personaje mirando en la dirección del movimiento
+
+        // Si el clic derecho está presionado, realiza el movimiento continuo
+        if (isRightClickPressed)
+        {
+            ClickToMoveContinuous();
+        }
+    }
+
+    // Callbacks para la acción de movimiento (clic derecho)
+    private void OnMoveStarted(InputAction.CallbackContext context)
+    {
+        isRightClickPressed = true;
+    }
+
+    private void OnMovePerformed(InputAction.CallbackContext context)
+    {
+        // No necesitamos hacer nada aquí si ClickToMoveContinuous ya se llama en Update
+        // si isRightClickPressed es true.
+    }
+
+    private void OnMoveCanceled(InputAction.CallbackContext context)
+    {
+        isRightClickPressed = false;
+    }
+
+    // Maneja el movimiento continuo al mantener presionado el clic derecho y el efecto de movimiento
+    void ClickToMoveContinuous()
+    {
+        RaycastHit hit;
+        // Lanza un rayo desde la posición del mouse, limitado por clickableLayers
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100f, clickableLayers))
+        {
+            agent.SetDestination(hit.point); // Establece el destino del NavMeshAgent
+
+            // Instancia el efecto de movimiento (shader) en el punto clicado
+            if (movementClickEffect != null)
+            {
+                // Instancia el efecto ligeramente por encima del punto de impacto para que sea visible
+                Instantiate(movementClickEffect, hit.point + new Vector3(0, 0.1f, 0), movementClickEffect.transform.rotation);
+            }
+        }
+    }
+
+    // Maneja la selección de un objetivo al hacer clic izquierdo
+    void ClickToTarget()
+    {
+        RaycastHit hit;
+        // Lanza un rayo desde la posición del mouse, limitado por clickableLayers
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100f, clickableLayers))
+        {
+            // Evita seleccionarse a sí mismo
+            if (hit.collider.gameObject == this.gameObject)
+            {
+                Debug.Log("Clic en el jugador. No se selecciona.");
+                return;
+            }
+            // --- LÓGICA DE SELECCIÓN DE OBJETOS CON EFECTOS ESPECÍFICOS ---
+            ParticleSystem effectToInstantiateForSelectionPrefab = null; // Prefab de ParticleSystem a instanciar
+
+            // Obtener el valor de bit de la capa del objeto golpeado
+            int hitLayerBitValue = 1 << hit.collider.gameObject.layer;
+
+            // Intentar obtener un efecto específico para esta capa del diccionario de SELECCIÓN
+            if (layerToSelectEffectMap.TryGetValue(hitLayerBitValue, out ParticleSystem specificSelectEffect))
+            {
+                effectToInstantiateForSelectionPrefab = specificSelectEffect;
+            }
+
+            // Si el objeto clicado es diferente al que ya está seleccionado O si no hay efecto de selección específico pero queremos quitar el anterior
+            if (hit.collider.gameObject != currentlySelectedObject)
+            {
+                // Destruir el efecto de selección anterior si existe
+                if (currentInstantiatedSelectEffect != null)
+                {
+                    Destroy(currentInstantiatedSelectEffect);
+                    currentInstantiatedSelectEffect = null;
+                }
+
+                // Instanciar el nuevo efecto de selección si se encontró uno para esta capa
+                if (effectToInstantiateForSelectionPrefab != null)
+                {
+                    // Accedemos al .gameObject del ParticleSystem prefab para instanciarlo.
+                    Vector3 _rightPost = hit.collider.transform.position + new Vector3(0, -0.4f, 0); // Un pequeño offset para que el efecto no esté en el medio del objeto
+                    currentInstantiatedSelectEffect = Instantiate(effectToInstantiateForSelectionPrefab.gameObject, _rightPost, Quaternion.identity);
+                    currentInstantiatedSelectEffect.transform.SetParent(hit.collider.transform);
+                    Debug.Log($"Seleccionado: {hit.collider.gameObject.name} con efecto específico.");
+                }
+                else
+                {
+                    // Si no hay un efecto específico configurado para esta capa, pero clicamos en un nuevo objeto,
+                    // aún necesitamos deseleccionar el anterior.
+                    Debug.Log($"Seleccionado: {hit.collider.gameObject.name}. No hay efecto de selección específico para esta capa.");
+                }
+                currentlySelectedObject = hit.collider.gameObject; // Actualiza el objeto seleccionado
+            }
+            else
+            {
+                Debug.Log($"Ya seleccionado: {hit.collider.gameObject.name}");
+            }
+        }
+        else // Si el clic izquierdo no golpea nada en las clickableLayers, deseleccionar
+        {
+            if (currentInstantiatedSelectEffect != null)
+            {
+                Destroy(currentInstantiatedSelectEffect);
+                currentInstantiatedSelectEffect = null;
+                currentlySelectedObject = null;
+                Debug.Log("Deseleccionado al hacer clic en el vacío.");
+            }
+        }
+    }
+
+    // Maneja la interacción al presionar la tecla 'E' (sin cambios)
+    void OnInteractPressed()
+    {
+        if (currentlySelectedObject != null)
+        {
+            IInteractable interactable = currentlySelectedObject.GetComponent<IInteractable>();
+
+            if (interactable != null)
+            {
+                interactable.Interact(this.gameObject);
+            }
+            else
+            {
+                Debug.Log($"El objeto {currentlySelectedObject.name} no es interactuable.");
+            }
+        }
+        else
+        {
+            Debug.Log("No hay ningún objeto seleccionado para interactuar.");
+        }
+    }
+
+    // Hace que el personaje mire en la dirección de su movimiento (sin cambios)
+    private void FaceTarget()
+    {
+        Vector3 horizontalVelocity = agent.velocity;
+        horizontalVelocity.y = 0;
+
+        if (horizontalVelocity.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(horizontalVelocity);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * lookRotationSpeed);
+        }
+    }
+}
+
+// --- Clases Auxiliares ---
+
+// Clase para definir entradas de efectos de SELECCIÓN específicos por capa
+[System.Serializable]
+public class SelectEffectEntry
+{
+    public LayerMask targetLayer; // La capa para la que este efecto de selección es específico
+    public ParticleSystem effectPrefab; // El prefab del ParticleSystem asociado a esta capa
 }

@@ -112,17 +112,6 @@ public partial class @Custom_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""8a430af8-5f93-447c-8de5-aa50d9656e58"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Move"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -164,7 +153,7 @@ public partial class @Custom_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""94584e51-dd09-4d74-8d20-8b8d2e1afc1b"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
