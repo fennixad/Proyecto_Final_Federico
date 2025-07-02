@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     Custom_Actions input;
@@ -156,6 +157,7 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Deseleccionado.");
             }
             */
+
             Debug.Log("Click fuera de una capa clickeable.");
         }
     }
