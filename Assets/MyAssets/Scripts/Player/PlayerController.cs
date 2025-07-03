@@ -190,6 +190,8 @@ public class PlayerController : MonoBehaviour
     }
 }
 */
+
+/*
 public class PlayerController : MonoBehaviour
 {
     Custom_Actions input; // Referencia a la clase generada por Input System
@@ -428,4 +430,152 @@ public class SelectEffectEntry
 {
     public LayerMask targetLayer; // La capa para la que este efecto de selección es específico
     public ParticleSystem effectPrefab; // El prefab del ParticleSystem asociado a esta capa
+}
+*/
+public class PlayerController : MonoBehaviour
+{
+    Custom_Actions input; 
+    NavMeshAgent agent;
+    Animator animator;
+
+    [Header("Interaction Settings")]
+    [Tooltip("La distancia máxima a la que el jugador puede interactuar con un objeto seleccionado.")]
+    public float interactionRange = 3f; // Distancia máxima para interactuar
+
+    [Header("Movement Settings")]
+    [SerializeField] LayerMask clickableLayers; // Capas en las que el jugador puede hacer clic para moverse o seleccionar
+
+    [Header("Move Click Effect")]
+    public ParticleSystem movementClickEffect; // El efecto para clics con botón derecho (movimiento), shader si lo tienes en el prefab
+
+    float lookRotationSpeed = 8f;
+    private bool isRightClickPressed = false; // Bandera para movimiento continuo con clic derecho
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+        input = new Custom_Actions(); // Inicializa tu Input Action Map
+    }
+
+    private void OnEnable()
+    {
+        input.Enable(); // Habilita las acciones de Input
+        AssignInputs(); // Asigna los callbacks de Input
+    }
+
+    private void OnDisable()
+    {
+        input.Disable(); // Deshabilita las acciones de Input
+    }
+
+    // Asigna los métodos a los eventos del Input System
+    void AssignInputs()
+    {
+        input.Main.Move.started += ctx => OnMoveStarted(ctx);
+       // input.Main.Move.performed += ctx => OnMovePerformed(ctx);
+        input.Main.Move.canceled += ctx => OnMoveCanceled(ctx);
+
+        // Ahora delegamos la llamada a SelectorManager.Instance.SelectTarget()
+        input.Select.Select.performed += ctx => SelectorManager.Instance.SelectTarget();
+        input.Select.Interact.performed += ctx => OnInteractPressed();
+    }
+
+    private void Update()
+    {
+        FaceTarget(); // Mantiene al personaje mirando en la dirección del movimiento
+
+        // Si el clic derecho está presionado, realiza el movimiento continuo
+        if (isRightClickPressed)
+        {
+            ClickToMoveContinuous();
+        }
+    }
+
+    // Callbacks para la acción de movimiento (clic derecho)
+    private void OnMoveStarted(InputAction.CallbackContext context)
+    {
+        SoundManager.Instance.PlaySounds(2); // Reproducimos el sonido de clic
+        isRightClickPressed = true;
+    }
+
+    private void OnMoveCanceled(InputAction.CallbackContext context)
+    {
+        isRightClickPressed = false;
+    }
+
+    // Maneja el movimiento continuo al mantener presionado el clic derecho y el efecto de movimiento
+    void ClickToMoveContinuous()
+    {
+        RaycastHit hit;
+        // Lanza un rayo desde la posición del mouse, limitado por clickableLayers
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100f, clickableLayers))
+        {
+            agent.SetDestination(hit.point); // Establece el destino del NavMeshAgent
+
+            // Instancia el efecto de movimiento (shader) en el punto clicado
+            if (movementClickEffect != null)
+            {
+                // Instancia el efecto ligeramente por encima del punto de impacto para que sea visible
+                // El ParticleSystem instanciado se destruirá a sí mismo si su 'Stop Action' está configurada a 'Destroy'.
+                Instantiate(movementClickEffect, hit.point + new Vector3(0, 0.1f, 0), movementClickEffect.transform.rotation);
+            }
+        }
+    }
+
+    // Maneja la interacción al presionar la tecla 'E'
+    void OnInteractPressed()
+    {
+        // Obtenemos el objeto actualmente seleccionado del SelectorManager
+        GameObject currentlySelectedObject = SelectorManager.Instance.currentlySelectedObject;
+
+        if (currentlySelectedObject != null)
+        {
+            // Calculamos la distancia entre el jugador y el objeto seleccionado.
+            // Usamos la magnitud de la diferencia de los vectores de posición.
+            float distance = Vector3.Distance(transform.position, currentlySelectedObject.transform.position);
+
+            Debug.Log($"Distancia al objeto {currentlySelectedObject.name}: {distance} unidades.");
+
+            // Si la distancia es menor o igual al rango de interacción
+            if (distance <= interactionRange)
+            {
+                // Intentamos obtener un componente que implemente IInteractable
+                IInteractable interactable = currentlySelectedObject.GetComponent<IInteractable>();
+
+                if (interactable != null)
+                {
+                    // Si el objeto es interactuable y está dentro del rango, interactuamos
+                    SoundManager.Instance.PlaySounds(0); // Reproducimos el sonido de interacción
+                    interactable.Interact(this.gameObject); // Pasamos el GameObject del jugador como interactor
+                }
+                else
+                {
+                    Debug.Log($"El objeto {currentlySelectedObject.name} no es interactuable.");
+                }
+            }
+            else // El objeto está fuera del rango de interacción
+            {
+                Debug.Log($"El objeto {currentlySelectedObject.name} está demasiado lejos para interactuar. Necesitas acercarte.");
+                SoundManager.Instance.PlaySounds(1);
+            }
+        }
+        else
+        {
+            Debug.Log("No hay ningún objeto seleccionado para interactuar.");
+        }
+    }
+
+    // Hace que el personaje mire en la dirección de su movimiento
+    private void FaceTarget()
+    {
+        Vector3 horizontalVelocity = agent.velocity;
+        horizontalVelocity.y = 0; // Ignora el componente Y para rotación horizontal
+
+        if (horizontalVelocity.sqrMagnitude > 0.01f) // Solo si hay movimiento significativo
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(horizontalVelocity);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * lookRotationSpeed);
+        }
+    }
 }

@@ -247,7 +247,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7792087378060460131
 Transform:
   m_ObjectHideFlags: 0
@@ -265,6 +265,7 @@ Transform:
   - {fileID: 2284145962421151353}
   - {fileID: 7023161565081863466}
   - {fileID: 5356647253035019481}
+  - {fileID: 6288160590921055533}
   m_Father: {fileID: 5228881495060242206}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5754014568915412789
@@ -412,6 +413,66 @@ MonoBehaviour:
   sounds:
   - {fileID: 8300000, guid: 80d3799791748ac42b3ec097c17a2383, type: 3}
   - {fileID: 8300000, guid: 1dc2f2287b118ff45939a91b08a2244e, type: 3}
+--- !u!1 &7028908116333450681
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6288160590921055533}
+  - component: {fileID: 8383319457764363279}
+  m_Layer: 0
+  m_Name: Selector Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6288160590921055533
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7028908116333450681}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7792087378060460131}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8383319457764363279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7028908116333450681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94e9480e7e46cc94bb5e28eaed2d8b6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectEffectsByLayer:
+  - targetLayer:
+      serializedVersion: 2
+      m_Bits: 64
+    effectPrefab: {fileID: 3508981945991229934, guid: af489e954ce603745bb20124909762ef, type: 3}
+  - targetLayer:
+      serializedVersion: 2
+      m_Bits: 128
+    effectPrefab: {fileID: 5854972973858266312, guid: 22eaf003a2d998c4791a821ea4b6dd40, type: 3}
+  - targetLayer:
+      serializedVersion: 2
+      m_Bits: 256
+    effectPrefab: {fileID: 3540364938365100378, guid: 1d61b70ed6ee1b34cabb964e50a42cee, type: 3}
+  selectableLayers:
+    serializedVersion: 2
+    m_Bits: 448
 --- !u!1 &7765289793186366762
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,7 +517,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 579095ffebc0e774baae335f737807ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cursorTexture: {fileID: 2800000, guid: 00634df7b4ab9ab45af8b13abef2565e, type: 3}
+  defaultMaterial: {fileID: 0}
+  hoverMaterial: {fileID: 0}
+  butonStart: {fileID: 0}
+  butonExit: {fileID: 0}
+  defaultCursor: {fileID: 0}
+  hoverCursor: {fileID: 0}
   hotSpot: {x: 0, y: 0}
   excludeFromClickSoundLayers:
     serializedVersion: 2
