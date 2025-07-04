@@ -58259,6 +58259,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1904316092}
     - target: {fileID: 3837279688379759708, guid: 8eef2b32e69af8844b2a59097d15774d, type: 3}
+      propertyPath: hoverCursor
+      value: 
+      objectReference: {fileID: 2800000, guid: 9c052f1a4de26d84783d2b283111e82b, type: 3}
+    - target: {fileID: 3837279688379759708, guid: 8eef2b32e69af8844b2a59097d15774d, type: 3}
+      propertyPath: defaultCursor
+      value: 
+      objectReference: {fileID: 2800000, guid: 00634df7b4ab9ab45af8b13abef2565e, type: 3}
+    - target: {fileID: 3837279688379759708, guid: 8eef2b32e69af8844b2a59097d15774d, type: 3}
       propertyPath: hoverMaterial
       value: 
       objectReference: {fileID: 2100000, guid: 213261f2b448da94f93986aa239f949a, type: 2}

@@ -118,7 +118,7 @@ public class SelectorManager : MonoBehaviour
                 {
                     // Accedemos al .gameObject del ParticleSystem prefab para instanciarlo.
                     // Ajustamos el offset Y para que el efecto no esté en el medio del objeto.
-                    Vector3 effectPosition = hit.collider.transform.position + new Vector3(0, -0.4f, 0);
+                    Vector3 effectPosition = hit.collider.transform.position + new Vector3(0, -0.4f, 0);  //Cambiar por pivote del objeto si es necesario
                     currentInstantiatedSelectEffect = Instantiate(effectToInstantiateForSelectionPrefab.gameObject, effectPosition, Quaternion.identity);
                     currentInstantiatedSelectEffect.transform.SetParent(hit.collider.transform);
                     Debug.Log($"Seleccionado: {hit.collider.gameObject.name} con efecto específico.");
