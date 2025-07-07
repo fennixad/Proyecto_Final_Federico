@@ -46,10 +46,12 @@ public class Enemies : MonoBehaviour, IInteractable
     private NavMeshAgent navMeshAgent;
     private FieldOfView fieldOfView;
     private float currentPatrolIdleDuration;
+    private Animator anim;
 
     // --- Ciclo de Vida del Script ---
     private void Awake()
     {
+        anim = transform.GetChild(0).GetComponent<Animator>();
         navMeshAgent = GetComponent<NavMeshAgent>();
         fieldOfView = GetComponent<FieldOfView>();
         if (fieldOfView == null) Debug.LogError("FieldOfView not found on " + name);
@@ -141,21 +143,28 @@ public class Enemies : MonoBehaviour, IInteractable
                     currentPatrolIdleDuration = (patrolIdleMode == PatrolIdleMode.Fixed) ?
                                                 fixedPatrolIdleTime :
                                                 Random.Range(minRandomPatrolIdleTime, maxRandomPatrolIdleTime);
+                    anim.SetFloat("Speed", 0f); // Asegura que la animación esté en Idle
                     StartCoroutine(PatrolIdleCoroutine(currentPatrolIdleDuration));
                 }
                 break;
             case EnemyState.Patrolling:
                 navMeshAgent.isStopped = false; // Permite que el NavMeshAgent se mueva
+                anim.SetFloat("Speed", 0.4f); // Asegura que la animación esté en Patrullando
+                navMeshAgent.speed = 1.5f; // Ajusta la velocidad del agente de patrullaje
                 if (patrolPoints != null && patrolPoints.Count > 0 && navMeshAgent.isOnNavMesh)
                     SetNextPatrolDestination();
                 else StateChange(EnemyState.Idle); // Si no hay puntos, vuelve a Idle
                 break;
             case EnemyState.Attacking:
                 navMeshAgent.isStopped = false;
+                anim.SetFloat("Speed", 1f); // Asegura que la animación esté en Atacando
+                navMeshAgent.speed = 2.5f;
                 if (fieldOfView?.currentTarget != null && navMeshAgent.isOnNavMesh)
                     navMeshAgent.SetDestination(fieldOfView.currentTarget.position);
                 break;
             case EnemyState.Stunned:
+                anim.SetFloat("Speed", 0f); // Asegura que la animación esté en Idle
+                anim.SetBool("Stunned", true); // Activa la animación de aturdimiento
                 navMeshAgent.isStopped = true;
                 StartCoroutine(StunEnemyCoroutine());
                 break;

@@ -71,7 +71,7 @@ public class SelectorManager : MonoBehaviour
     /// Maneja la lógica de selección de un objetivo al hacer clic izquierdo.
     /// Es llamada desde PlayerController.
     /// </summary>
-    public void SelectTarget()
+    public void SelectTarget(InputAction.CallbackContext context)
     {
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;

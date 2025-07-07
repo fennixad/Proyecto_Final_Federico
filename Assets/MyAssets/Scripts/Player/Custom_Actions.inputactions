@@ -76,6 +76,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Anim",
+            "id": "e8211239-089e-438f-8389-d642156a6165",
+            "actions": [
+                {
+                    "name": "Crouch",
+                    "type": "Button",
+                    "id": "c30f0eb3-be9c-4a5e-9dea-2438b73bd669",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "cbdc1eae-bcd8-4562-b392-302f71a52cc8",
+                    "path": "<Keyboard>/leftShift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

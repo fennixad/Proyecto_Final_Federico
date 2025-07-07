@@ -162,6 +162,34 @@ public partial class @Custom_Actions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Anim"",
+            ""id"": ""e8211239-089e-438f-8389-d642156a6165"",
+            ""actions"": [
+                {
+                    ""name"": ""Crouch"",
+                    ""type"": ""Button"",
+                    ""id"": ""c30f0eb3-be9c-4a5e-9dea-2438b73bd669"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""cbdc1eae-bcd8-4562-b392-302f71a52cc8"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -173,12 +201,16 @@ public partial class @Custom_Actions: IInputActionCollection2, IDisposable
         m_Select = asset.FindActionMap("Select", throwIfNotFound: true);
         m_Select_Select = m_Select.FindAction("Select", throwIfNotFound: true);
         m_Select_Interact = m_Select.FindAction("Interact", throwIfNotFound: true);
+        // Anim
+        m_Anim = asset.FindActionMap("Anim", throwIfNotFound: true);
+        m_Anim_Crouch = m_Anim.FindAction("Crouch", throwIfNotFound: true);
     }
 
     ~@Custom_Actions()
     {
         UnityEngine.Debug.Assert(!m_Main.enabled, "This will cause a leak and performance issues, Custom_Actions.Main.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Select.enabled, "This will cause a leak and performance issues, Custom_Actions.Select.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Anim.enabled, "This will cause a leak and performance issues, Custom_Actions.Anim.Disable() has not been called.");
     }
 
     /// <summary>
@@ -453,6 +485,102 @@ public partial class @Custom_Actions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="SelectActions" /> instance referencing this action map.
     /// </summary>
     public SelectActions @Select => new SelectActions(this);
+
+    // Anim
+    private readonly InputActionMap m_Anim;
+    private List<IAnimActions> m_AnimActionsCallbackInterfaces = new List<IAnimActions>();
+    private readonly InputAction m_Anim_Crouch;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Anim".
+    /// </summary>
+    public struct AnimActions
+    {
+        private @Custom_Actions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public AnimActions(@Custom_Actions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Anim/Crouch".
+        /// </summary>
+        public InputAction @Crouch => m_Wrapper.m_Anim_Crouch;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Anim; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="AnimActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(AnimActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="AnimActions" />
+        public void AddCallbacks(IAnimActions instance)
+        {
+            if (instance == null || m_Wrapper.m_AnimActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_AnimActionsCallbackInterfaces.Add(instance);
+            @Crouch.started += instance.OnCrouch;
+            @Crouch.performed += instance.OnCrouch;
+            @Crouch.canceled += instance.OnCrouch;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="AnimActions" />
+        private void UnregisterCallbacks(IAnimActions instance)
+        {
+            @Crouch.started -= instance.OnCrouch;
+            @Crouch.performed -= instance.OnCrouch;
+            @Crouch.canceled -= instance.OnCrouch;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="AnimActions.UnregisterCallbacks(IAnimActions)" />.
+        /// </summary>
+        /// <seealso cref="AnimActions.UnregisterCallbacks(IAnimActions)" />
+        public void RemoveCallbacks(IAnimActions instance)
+        {
+            if (m_Wrapper.m_AnimActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="AnimActions.AddCallbacks(IAnimActions)" />
+        /// <seealso cref="AnimActions.RemoveCallbacks(IAnimActions)" />
+        /// <seealso cref="AnimActions.UnregisterCallbacks(IAnimActions)" />
+        public void SetCallbacks(IAnimActions instance)
+        {
+            foreach (var item in m_Wrapper.m_AnimActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_AnimActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="AnimActions" /> instance referencing this action map.
+    /// </summary>
+    public AnimActions @Anim => new AnimActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Main" which allows adding and removing callbacks.
     /// </summary>
@@ -489,5 +617,20 @@ public partial class @Custom_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Anim" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="AnimActions.AddCallbacks(IAnimActions)" />
+    /// <seealso cref="AnimActions.RemoveCallbacks(IAnimActions)" />
+    public interface IAnimActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Crouch" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCrouch(InputAction.CallbackContext context);
     }
 }

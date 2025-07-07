@@ -3707,6 +3707,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 95948184454102094, guid: 904af8c9d76935743964668f843a1f0c, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: bf6ed43eb66d99049bd82e6787bc2320, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4632,6 +4636,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 449
   movementClickEffect: {fileID: 4389464538976725485, guid: 3d0557e9ed40c6748b3e24806438b8fb, type: 3}
+  normalMoveSpeed: 3.5
+  crouchMoveSpeed: 2
 --- !u!1 &1760324252
 GameObject:
   m_ObjectHideFlags: 0
@@ -76222,7 +76228,7 @@ Animator:
   m_GameObject: {fileID: 1916433655517900683}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 038320a534bd8b444b43734860d1a211, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f0efdb2f1e1a8174485b3275c005a2cd, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
