@@ -37,7 +37,7 @@ public class CursorManager : MonoBehaviour
             {
                 // El clic fue sobre un elemento de UI (botón, slider, etc.)
                 // No reproducimos el sonido general de clic.
-                Debug.Log("Clic en UI. No se reproduce sonido general.");
+               // Debug.Log("Clic en UI. No se reproduce sonido general.");
                 return; // Salir de la función Update
             }
 
@@ -54,7 +54,7 @@ public class CursorManager : MonoBehaviour
             {
                 // El clic golpeó un GameObject 3D de la escena que no está en las capas a excluir.
                 // Asumimos que estos GameObjects tienen sus propios sonidos o no queremos sonido general.
-                Debug.Log($"Clic en GameObject 3D: {hit.collider.name}. No se reproduce sonido general.");
+                //Debug.Log($"Clic en GameObject 3D: {hit.collider.name}. No se reproduce sonido general.");
                 return; // Salir de la función Update
             }
 

@@ -53,10 +53,11 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Playing:
                 Debug.Log("Estado del juego: Jugando");
+                Time.timeScale = 1f;
                 break;
             case GameState.Pause:
                 Debug.Log("Estado del juego: Pausa");
-                MusicManager.Instance.PlayMusic(1, .125f, true);
+                //MusicManager.Instance.PlayMusic(1, .125f, true);
                 PauseManager.Instance.MenuHallVisibility(true);
                 Time.timeScale = 0f;
                 break;
