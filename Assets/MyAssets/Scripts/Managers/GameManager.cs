@@ -25,8 +25,11 @@ public class GameManager : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P)) Instance.PauseGame();
-
+        if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Escape))
+        {
+            SoundManager.Instance.PlaySounds(0);
+            Instance.PauseGame();
+        }
     }
 
     public void PlayableSceneLoad()
@@ -43,6 +46,9 @@ public class GameManager : MonoBehaviour
     public void SetGameState(GameState newState)
     {
         CurrentGameState = newState;
+        Debug.Log("Cambiando estado del juego a: " + newState);
+
+
         switch (newState)
         {
             case GameState.Initial_Menu:
@@ -52,17 +58,18 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Estado del juego: Cargando...");
                 break;
             case GameState.Playing:
-                Debug.Log("Estado del juego: Jugando");
-                Time.timeScale = 1f;
+                Playing();
                 break;
             case GameState.Pause:
+                
                 Debug.Log("Estado del juego: Pausa");
                 //MusicManager.Instance.PlayMusic(1, .125f, true);
                 PauseManager.Instance.MenuHallVisibility(true);
                 Time.timeScale = 0f;
                 break;
             case GameState.GameOver:
-                Debug.Log("Estado del juego: Game Over");
+                //Sonido muerte
+                SceneManager.LoadScene(2);
                 break;
             case GameState.Nivel_Completed:
                 Debug.Log("Estado del juego: Nivel Completado");
@@ -74,12 +81,31 @@ public class GameManager : MonoBehaviour
     }
     public void PauseGame()
     {
-        if (CurrentGameState == GameState.Initial_Menu) SetGameState(GameState.Pause);
+        if (CurrentGameState == GameState.Initial_Menu)
+        {
+            SetGameState(GameState.Pause);
+        }
+        else if (CurrentGameState == GameState.Playing)
+        {
+            PauseManager.Instance.MenuHallVisibility(true);
+            SetGameState(GameState.Pause);
+        }
         else if (CurrentGameState == GameState.Pause)
         {
             PauseManager.Instance.MenuHallVisibility(false);
             SetGameState(GameState.Playing);
         }
+    }
+
+    void Playing() 
+    { 
+        if (PauseManager.Instance.menuHall.activeSelf)
+        {
+            PauseManager.Instance.MenuHallVisibility(false);
+        }
+        Debug.Log("Estado del juego: Jugando");
+        Time.timeScale = 1f;
+        //MusicaManager.Instance.PlayMusic(0, .125f, true);
     }
     public enum GameState
     {

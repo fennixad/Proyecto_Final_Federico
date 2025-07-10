@@ -156,8 +156,10 @@ public class PlayerController : MonoBehaviour
 
                 if (interactable != null)
                 {
-                    SoundManager.Instance.PlaySounds(0);
+                    SoundManager.Instance.PlaySounds(0);               
                     interactable.Interact(this.gameObject);
+                    if (currentlySelectedObject.CompareTag("Enemy")) animator.SetTrigger("Attack"); // Si es un enemigo, activa el ataque
+                    else animator.SetTrigger("Interact"); // Si es otro objeto, activa la interacción
                 }
                 else
                 {
