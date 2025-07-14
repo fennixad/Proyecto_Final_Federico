@@ -39,8 +39,7 @@ public class Door : MonoBehaviour, IInteractable
     {
         isOpen = true;
         Debug.Log($"La puerta {gameObject.name} se ha abierto.");
-        // Aquí iría tu lógica visual/animación para abrir la puerta
-        // Por ejemplo, GetComponent<Animator>().SetTrigger("Open");
+        GetComponent<Animator>().SetTrigger("Open");
     }
 
     private void CloseDoor()
