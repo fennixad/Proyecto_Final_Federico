@@ -148,8 +148,6 @@ public class PlayerController : MonoBehaviour
         {
             float distance = Vector3.Distance(transform.position, currentlySelectedObject.transform.position);
 
-            Debug.Log($"Distancia al objeto {currentlySelectedObject.name}: {distance} unidades.");
-
             if (distance <= interactionRange)
             {
                 IInteractable interactable = currentlySelectedObject.GetComponent<IInteractable>();
@@ -157,7 +155,7 @@ public class PlayerController : MonoBehaviour
                 if (interactable != null)
                 {
                     SoundManager.Instance.PlaySounds(0);               
-                    interactable.Interact(this.gameObject);
+                    interactable.Interact(currentlySelectedObject);
                     if (currentlySelectedObject.CompareTag("Enemy")) animator.SetTrigger("Attack"); // Si es un enemigo, activa el ataque
                     else animator.SetTrigger("Interact"); // Si es otro objeto, activa la interacción
                 }

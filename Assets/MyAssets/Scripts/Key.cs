@@ -2,23 +2,18 @@ using UnityEngine;
 
 public class Key : MonoBehaviour, IInteractable
 {
-    public string keyID = "MasterKey"; // ID de la llave, para identificarla
-
+    public string keyID; // ID de la llave, para identificarla
+    public PlayerInventory playerInventory; // Referencia al inventario del jugador
     public void Interact(GameObject interactor)
     {
         Debug.Log($"Interactuando con la llave: {gameObject.name} desde {interactor.name}");
 
-        // Ejemplo: Añadir la llave al inventario del jugador
-        PlayerInventory playerInventory = interactor.GetComponent<PlayerInventory>();
+        // Añadir la llave al inventario del jugador
         if (playerInventory != null)
         {
             playerInventory.AddKey(keyID);
             Debug.Log($"Jugador recogió la llave: {keyID}");
             CheckInteractable(); // Destruir la llave después de recogerla Pero no si es un enemigo.
-        }
-        else
-        {
-            Debug.LogWarning($"El jugador {interactor.name} no tiene un componente PlayerInventory.");
         }
     }
     public void CheckInteractable()

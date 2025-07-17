@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    private List<string> collectedKeys = new List<string>();
+    public List<string> collectedKeys = new List<string>();
 
     public void AddKey(string keyId)
     {
