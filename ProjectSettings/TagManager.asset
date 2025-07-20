@@ -8,6 +8,7 @@ TagManager:
   - SelectOne
   - SelectTwo
   - Enemy
+  - DoubleDoor
   layers:
   - Default
   - TransparentFX

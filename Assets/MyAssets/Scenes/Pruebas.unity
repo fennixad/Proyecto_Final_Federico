@@ -4143,6 +4143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyID: MasterKey
+  playerInventory: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -6197,6 +6198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOpen: 0
   requiredKeyID: 
+  playerInventory: {fileID: 0}
 --- !u!1 &1368704923
 GameObject:
   m_ObjectHideFlags: 0
@@ -6621,6 +6623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ca83cfc895369a4cab7bb81f619f625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collectedKeys: []
 --- !u!195 &1519883248
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -7012,7 +7015,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.11666667
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: d92979f22b4c9fc42ac44d9506b292a8, type: 2}
   m_BuildHeightMesh: 0
@@ -78736,7 +78739,10 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'Toes_R'\n\tTransform 'Toes_R'\n\tFrom animation
+    clip 'A_Attack_LightCombo01B_RootMotion_Sword'\n\tFrom animation clip 'A_Idle_Flourish01_Sword'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0

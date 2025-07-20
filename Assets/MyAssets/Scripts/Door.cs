@@ -8,6 +8,7 @@ public class Door : MonoBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
+
         if (!isOpen)
         {
             // Comprobar si requiere llave y si el jugador la tiene
@@ -15,7 +16,10 @@ public class Door : MonoBehaviour, IInteractable
             {
                 if (playerInventory != null && playerInventory.HasKey(requiredKeyID))
                 {
-                    Debug.Log("deberia abrir");
+                    if (interactor.transform.CompareTag("DoubleDoor"))
+                    {
+                        OpenDoubleDOor(interactor);
+                    }
                     OpenDoor();
                 }
                 else
@@ -25,6 +29,10 @@ public class Door : MonoBehaviour, IInteractable
             }
             else // No requiere llave
             {
+                if (interactor.transform.CompareTag("DoubleDoor"))
+                {
+                    OpenDoubleDOor(interactor);
+                }
                 OpenDoor();
             }
         }
@@ -39,6 +47,15 @@ public class Door : MonoBehaviour, IInteractable
         isOpen = true;
         Debug.Log($"La puerta {gameObject.name} se ha abierto.");
         GetComponent<Animator>().SetTrigger("Open");
+    }
+
+    private void OpenDoubleDOor(GameObject interactor)
+    {
+        isOpen = true;
+        Debug.Log($"La puerta doble {gameObject.name} se ha abierto.");
+        interactor.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Open");
+        interactor.transform.GetChild(1).GetComponent<Animator>().SetTrigger("Open");
+        interactor.GetComponent<Collider>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
     }
     /*
     private void CloseDoor()

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7960420476135095685}
   m_Layer: 5
-  m_Name: HUD_FantasyWarrior_WorldSpace_EnemyInfo
+  m_Name: HUD_FantasyWarrior_WorldSpace_EnemyInfo01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,11 +26,11 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4178474976960803080}
   - {fileID: 8061971724590095374}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -63,11 +63,11 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3295248619280488972}
   - {fileID: 6831021294862237772}
   m_Father: {fileID: 7960420476135095685}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
@@ -79,6 +79,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 4178474976960803080}
     m_Modifications:
     - target: {fileID: 1124351507154119322, guid: 956050f36a15805468321e8290d94ee6, type: 3}
@@ -182,6 +183,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 956050f36a15805468321e8290d94ee6, type: 3}
 --- !u!224 &6831021294862237772 stripped
 RectTransform:
@@ -193,6 +197,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 7960420476135095685}
     m_Modifications:
     - target: {fileID: 6014858847792620887, guid: a94321ee762d61548a350be1e18e215a, type: 3}
@@ -372,6 +377,9 @@ PrefabInstance:
       value: HUD_WorldSpace_NameEnemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a94321ee762d61548a350be1e18e215a, type: 3}
 --- !u!224 &8061971724590095374 stripped
 RectTransform:
@@ -383,6 +391,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 4178474976960803080}
     m_Modifications:
     - target: {fileID: 1384280946776679044, guid: 161e466f1401a5446bab5ecb72d412df, type: 3}
@@ -510,6 +519,9 @@ PrefabInstance:
       value: HUD_HealthBar_Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 161e466f1401a5446bab5ecb72d412df, type: 3}
 --- !u!224 &3295248619280488972 stripped
 RectTransform:

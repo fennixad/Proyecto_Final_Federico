@@ -5,11 +5,12 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2578781753770651911, guid: beeedd1b799a93b4d88de56d115e68d7, type: 3}
       propertyPath: m_Name
-      value: Map_FantasyWarrior_Icon_Monster
+      value: Map_FantasyWarrior_Icon_Monster01
       objectReference: {fileID: 0}
     - target: {fileID: 7737134893979855697, guid: beeedd1b799a93b4d88de56d115e68d7, type: 3}
       propertyPath: m_Sprite
@@ -100,4 +101,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: beeedd1b799a93b4d88de56d115e68d7, type: 3}

@@ -241,6 +241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyID: MasterKey
+  playerInventory: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -797,6 +798,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOpen: 0
   requiredKeyID: 
+  playerInventory: {fileID: 0}
 --- !u!43 &1437145107
 Mesh:
   m_ObjectHideFlags: 0
@@ -1196,7 +1198,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.11666667
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 21b93d2140504d54fa565f2c7031e339, type: 2}
   m_BuildHeightMesh: 0
