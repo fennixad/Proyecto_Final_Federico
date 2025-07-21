@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class FieldOfView : MonoBehaviour
 {
@@ -175,43 +176,245 @@ public class FieldOfView : MonoBehaviour
             this.angle = angle;
         }
     }
+}
+*/
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+public class FieldOfView : MonoBehaviour
+{
+    // --- Variables de Configuración ---
+    [Header("Forma de la visión")]
+    [Tooltip("Grados totales del cono de visión.")]
+    [Range(0f, 360f)] public float viewAngle = 90f;
+    [Tooltip("Radio máximo de detección (distancia horizontal en el suelo).")]
+    public float viewRadius = 6f;
 
-    // --- Gizmos de Depuración en el Editor ---
-    void OnDrawGizmos()
+    [Header("Resolución de la malla")]
+    [Tooltip("Define la suavidad del cono de visión. A mayor valor, más detalle.")]
+    [Min(2)] public int meshResolution = 40;
+
+    [Header("Puntos de origen")]
+    [Tooltip("Offset vertical desde la posición del enemigo para lanzar los Raycast de detección (ej. altura de los ojos/pecho).")]
+    public float detectionRaycastHeightOffset = 1.0f;
+    [Tooltip("Altura Y LOCAL donde se dibujará la base del cono visual (ej. 0 para los pies si el pivote está allí).")]
+    public float visualConeLocalBaseY = 0.0f;
+
+    [Header("Detección")]
+    [Tooltip("Capa (Layer) de los objetos que el enemigo debe detectar (ej. el jugador).")]
+    public LayerMask targetMask;
+    [Tooltip("Capa (Layer) de los objetos que bloquean la visión del enemigo (ej. paredes, cajas).")]
+    public LayerMask obstacleMask;
+    [Tooltip("Intervalo en segundos entre cada barrido de detección para optimizar el rendimiento.")]
+    public float detectionInterval = 0.2f;
+
+    // --- Optimización de la detección ---
+    [Tooltip("Número máximo de colliders a detectar con OverlapSphere. Evita asignaciones de memoria extra.")]
+    public int maxOverlapColliders = 5; // Limita los resultados del OverlapSphere
+    private Collider[] overlapResults; // Array para reutilizar en OverlapSphereNonAlloc
+
+    // --- Optimización de la malla ---
+    [Tooltip("Intervalo en segundos entre cada actualización de la malla visual. 0 para actualizar cada frame.")]
+    public float meshUpdateInterval = 0.1f; // Actualizar la malla menos frecuentemente
+
+    // --- Estado de la Detección (Propiedades públicas) ---
+    public bool canSeeTarget { get; private set; }
+    public Transform currentTarget { get; private set; }
+
+    // --- Componentes Internos ---
+    private MeshFilter viewMeshFilter;
+    private Mesh viewMesh;
+
+    // --- Variables de control de Corrutinas ---
+    private Coroutine findTargetsCoroutine;
+    private Coroutine drawMeshCoroutine;
+
+
+    void Awake()
     {
-        if (!enabled || transform == null) return;
+        viewMeshFilter = GetComponent<MeshFilter>();
+        viewMesh = new Mesh { name = "View Mesh" };
+        viewMeshFilter.mesh = viewMesh;
 
-        // Gizmo para el origen de los raycasts de detección (amarillo, pequeña esfera)
-        Vector3 detectionOriginGizmo = transform.position + Vector3.up * detectionRaycastHeightOffset;
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(detectionOriginGizmo, 0.15f);
+        // Inicializa el array para OverlapSphereNonAlloc
+        overlapResults = new Collider[maxOverlapColliders];
+    }
 
-        // Gizmo para el origen del cono visual (cian, pequeña esfera)
-        Vector3 visualConeOriginGizmo = transform.position + transform.up * visualConeLocalBaseY;
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(visualConeOriginGizmo, 0.15f);
+    void OnEnable()
+    {
+        // Detener corrutinas antiguas si el script fue deshabilitado y vuelto a habilitar
+        if (findTargetsCoroutine != null) StopCoroutine(findTargetsCoroutine);
+        if (drawMeshCoroutine != null) StopCoroutine(drawMeshCoroutine);
 
-        // Gizmo para el rango horizontal de detección (disco amarillo en el suelo)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(visualConeOriginGizmo, viewRadius); // Se verá como un disco plano
-
-        // Color de los rayos de depuración (rojo si detecta, verde si no)
-        Gizmos.color = canSeeTarget ? Color.red : Color.green;
-
-        int gizmoStepCount = Mathf.RoundToInt(viewAngle * meshResolution / 2);
-        float gizmoStepAngleSize = viewAngle / gizmoStepCount;
-
-        // Dibuja los rayos de depuración para la detección
-        for (int i = 0; i <= gizmoStepCount; i++)
+        findTargetsCoroutine = StartCoroutine(FindTargetsWithDelay());
+        if (meshUpdateInterval > 0)
         {
-            float angle = -viewAngle * 0.5f + gizmoStepAngleSize * i + transform.eulerAngles.y;
-            Vector3 dir = DirFromAngle(angle, true);
-            RaycastHit hit;
-            // Dibuja la línea hasta el punto de impacto o hasta el final del rayo
-            if (Physics.Raycast(detectionOriginGizmo, dir, out hit, viewRadius, obstacleMask | targetMask))
-                Gizmos.DrawLine(detectionOriginGizmo, hit.point);
-            else
-                Gizmos.DrawRay(detectionOriginGizmo, dir * viewRadius);
+            drawMeshCoroutine = StartCoroutine(DrawFieldOfViewWithDelay());
+        }
+    }
+
+    void OnDisable()
+    {
+        // Asegúrate de detener las corrutinas cuando el GameObject se deshabilita
+        if (findTargetsCoroutine != null) StopCoroutine(findTargetsCoroutine);
+        if (drawMeshCoroutine != null) StopCoroutine(drawMeshCoroutine);
+    }
+
+    // --- Corrutina para detección de objetivos (Optimizada) ---
+    IEnumerator FindTargetsWithDelay()
+    {
+        var wait = new WaitForSeconds(detectionInterval);
+        while (enabled)
+        {
+            yield return wait;
+            FindVisibleTargets();
+        }
+    }
+
+    // --- Corrutina para dibujar el cono visual (Optimizada) ---
+    IEnumerator DrawFieldOfViewWithDelay()
+    {
+        var wait = new WaitForSeconds(meshUpdateInterval);
+        while (enabled)
+        {
+            DrawFieldOfViewMesh(); // Renombrado para evitar confusión con el método original
+            yield return wait;
+        }
+    }
+
+    // --- Lógica de Detección (Optimizada) ---
+    void FindVisibleTargets()
+    {
+        bool targetFoundThisScan = false;
+        Transform foundTargetTransform = null;
+        Vector3 detectionOrigin = transform.position + Vector3.up * detectionRaycastHeightOffset;
+
+        // --- Optimización: Usar OverlapSphereNonAlloc para una detección inicial barata ---
+        // Esto es mucho más eficiente que 40 Raycasts para ver si hay ALGO cerca.
+        int numColliders = Physics.OverlapSphereNonAlloc(
+            detectionOrigin,
+            viewRadius,
+            overlapResults,
+            targetMask
+        );
+
+        if (numColliders > 0)
+        {
+            // Hay uno o más posibles objetivos dentro del radio
+            for (int i = 0; i < numColliders; i++)
+            {
+                Transform potentialTarget = overlapResults[i].transform;
+                // Vector del enemigo al objetivo potencial
+                Vector3 dirToTarget = (potentialTarget.position + Vector3.up * detectionRaycastHeightOffset - detectionOrigin).normalized;
+
+                // 1. Comprobar si el objetivo está dentro del ángulo de visión
+                if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
+                {
+                    float distToTarget = Vector3.Distance(detectionOrigin, potentialTarget.position + Vector3.up * detectionRaycastHeightOffset);
+                    RaycastHit hit;
+                    // 2. Lanzar un solo Raycast preciso para verificar si hay obstáculos en medio
+                    if (Physics.Raycast(detectionOrigin, dirToTarget, out hit, distToTarget, obstacleMask | targetMask))
+                    {
+                        // Si el raycast golpea el objetivo, y no un obstáculo
+                        if (hit.collider.transform == potentialTarget)
+                        {
+                            targetFoundThisScan = true;
+                            foundTargetTransform = potentialTarget;
+                            break; // Se encontró el objetivo más cercano y visible, salir
+                        }
+                    }
+                }
+            }
+        }
+
+        canSeeTarget = targetFoundThisScan;
+        currentTarget = foundTargetTransform; // Asigna null si no se encontró nada
+    }
+
+    // --- Generación del Cono Visual (Ahora en su propia corrutina o Update si meshUpdateInterval es 0) ---
+    // Renombrado de DrawFieldOfView a DrawFieldOfViewMesh para evitar conflicto si meshUpdateInterval es 0 y se llama desde LateUpdate
+    void DrawFieldOfViewMesh()
+    {
+        // Si meshUpdateInterval es 0, este método se llamaría cada LateUpdate().
+        // Si meshUpdateInterval > 0, se llamará a través de la corrutina DrawFieldOfViewWithDelay().
+
+        int stepCount = Mathf.RoundToInt(viewAngle * meshResolution);
+        float stepAngleSize = viewAngle / stepCount;
+        var viewPoints = new List<Vector3>();
+        Vector3 visualConeOriginGlobal = transform.position + transform.up * visualConeLocalBaseY;
+
+        for (int i = 0; i <= stepCount; i++)
+        {
+            float angle = -viewAngle * 0.5f + stepAngleSize * i + transform.eulerAngles.y;
+            viewPoints.Add(ViewCast(angle, visualConeOriginGlobal).point);
+        }
+
+        int vertexCount = viewPoints.Count + 1;
+        Vector3[] vertices = new Vector3[vertexCount];
+        int[] triangles = new int[(vertexCount - 2) * 3];
+
+        vertices[0] = new Vector3(0, visualConeLocalBaseY, 0); // Vértice central del cono (local)
+        for (int i = 0; i < viewPoints.Count; i++)
+        {
+            Vector3 localPoint = transform.InverseTransformPoint(viewPoints[i]);
+            localPoint.y = visualConeLocalBaseY; // Asegura que la malla esté plana en la base Y
+            vertices[i + 1] = localPoint;
+
+            if (i < viewPoints.Count - 1)
+            {
+                int triIndex = i * 3;
+                triangles[triIndex] = 0;
+                triangles[triIndex + 1] = i + 1;
+                triangles[triIndex + 2] = i + 2;
+            }
+        }
+        viewMesh.Clear();
+        viewMesh.vertices = vertices;
+        viewMesh.triangles = triangles;
+        viewMesh.RecalculateNormals();
+        viewMesh.RecalculateBounds();
+    }
+
+    // Lanza un raycast para determinar la distancia de un punto en el cono (este sigue siendo para la malla visual)
+    ViewCastInfo ViewCast(float globalAngle, Vector3 rayOrigin)
+    {
+        Vector3 dir = DirFromAngle(globalAngle, true);
+        RaycastHit hit;
+        // Solo considera obstáculos para el dibujo del cono
+        if (Physics.Raycast(rayOrigin, dir, out hit, viewRadius, obstacleMask))
+            return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
+        return new ViewCastInfo(false, rayOrigin + dir * viewRadius, viewRadius, globalAngle);
+    }
+
+    // Calcula un vector de dirección a partir de un ángulo en grados
+    public Vector3 DirFromAngle(float angleInDegrees, bool angleIsGlobal)
+    {
+        if (!angleIsGlobal) angleInDegrees += transform.eulerAngles.y;
+        return new Vector3(Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(angleInDegrees * Mathf.Deg2Rad));
+    }
+
+    // Estructura para almacenar información de cada raycast del cono
+    public struct ViewCastInfo
+    {
+        public bool hit;
+        public Vector3 point;
+        public float distance;
+        public float angle;
+        public ViewCastInfo(bool hit, Vector3 point, float distance, float angle)
+        {
+            this.hit = hit;
+            this.point = point;
+            this.distance = distance;
+            this.angle = angle;
+        }
+    }
+
+    // --- Lógica para dibujar el cono si meshUpdateInterval es 0 ---
+    // Si meshUpdateInterval es 0, el cono se actualizará en cada LateUpdate.
+    // Si meshUpdateInterval > 0, el método DrawFieldOfViewWithDelay() lo manejará.
+    void LateUpdate()
+    {
+        if (meshUpdateInterval == 0)
+        {
+            DrawFieldOfViewMesh();
         }
     }
 }

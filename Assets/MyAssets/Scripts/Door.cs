@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Door : MonoBehaviour, IInteractable
 {
@@ -54,6 +55,8 @@ public class Door : MonoBehaviour, IInteractable
         isOpen = true;
         Debug.Log($"La puerta doble {gameObject.name} se ha abierto.");
         interactor.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Open");
+        interactor.transform.GetChild(0).GetComponent<NavMeshObstacle>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
+        interactor.transform.GetChild(1).GetComponent<NavMeshObstacle>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
         interactor.transform.GetChild(1).GetComponent<Animator>().SetTrigger("Open");
         interactor.GetComponent<Collider>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
     }

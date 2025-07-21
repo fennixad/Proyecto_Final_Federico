@@ -4,6 +4,7 @@ public class Key : MonoBehaviour, IInteractable
 {
     public string keyID; // ID de la llave, para identificarla
     public PlayerInventory playerInventory; // Referencia al inventario del jugador
+    public PlayerHudManager playerHudManager; // Referencia al gestor del HUD del jugador
     public void Interact(GameObject interactor)
     {
         Debug.Log($"Interactuando con la llave: {gameObject.name} desde {interactor.name}");
@@ -14,6 +15,7 @@ public class Key : MonoBehaviour, IInteractable
             playerInventory.AddKey(keyID);
             Debug.Log($"Jugador recogió la llave: {keyID}");
             CheckInteractable(); // Destruir la llave después de recogerla Pero no si es un enemigo.
+            playerHudManager.UpdateCellKey(keyID); // Actualizar el HUD del jugador con la llave recogida
         }
     }
     public void CheckInteractable()

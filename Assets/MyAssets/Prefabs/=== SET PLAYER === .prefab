@@ -13114,7 +13114,7 @@ GameObject:
   - component: {fileID: 5568187048271306792}
   m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13212,7 +13212,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ca83cfc895369a4cab7bb81f619f625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collectedKeys: []
+  collectedKeys:
+  - cellkey
+  - throneKey
 --- !u!1 &1799931348398965724
 GameObject:
   m_ObjectHideFlags: 0

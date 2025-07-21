@@ -99,10 +99,14 @@ public class GameManager : MonoBehaviour
 
     void Playing() 
     { 
-        if (PauseManager.Instance.menuHall.activeSelf)
+        if (PauseManager.Instance != null)
         {
-            PauseManager.Instance.MenuHallVisibility(false);
+            if (PauseManager.Instance.menuHall.activeSelf)
+            {
+                PauseManager.Instance.MenuHallVisibility(false);
+            }
         }
+
         Debug.Log("Estado del juego: Jugando");
         Time.timeScale = 1f;
         //MusicaManager.Instance.PlayMusic(0, .125f, true);
