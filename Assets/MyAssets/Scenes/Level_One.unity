@@ -242,6 +242,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyID: MasterKey
   playerInventory: {fileID: 0}
+  playerHudManager: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

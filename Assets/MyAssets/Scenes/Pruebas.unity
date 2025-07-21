@@ -559,6 +559,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 257
   detectionInterval: 0.1
+  maxOverlapColliders: 5
+  meshUpdateInterval: 0.1
 --- !u!23 &244054689
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4144,6 +4146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyID: MasterKey
   playerInventory: {fileID: 0}
+  playerHudManager: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

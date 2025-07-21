@@ -73,6 +73,7 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Nivel_Completed:
                 Debug.Log("Estado del juego: Nivel Completado");
+                SceneManager.LoadScene(3);
                 break;
             default:
                 Debug.LogError("Estado del juego no reconocido: " + newState);
