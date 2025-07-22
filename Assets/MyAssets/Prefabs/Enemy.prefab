@@ -21,7 +21,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2286387056066750251
 Transform:
   m_ObjectHideFlags: 0
@@ -76,8 +76,7 @@ MonoBehaviour:
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
-  patrolType: 0
+  patrolType: 1
   stoppingDistanceThreshold: 0.5
   enablePatrolIdleTime: 1
   patrolIdleMode: 0
@@ -189,6 +188,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 257
   detectionInterval: 0.1
+  maxOverlapColliders: 5
+  meshUpdateInterval: 0.1
 --- !u!1001 &7478085199657647761
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -16,10 +16,10 @@ public class Cuchillas : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Cuchillas colisionando con: " + other.name);
         if (other.CompareTag("Player"))
         {
-            SceneManager.LoadScene(2);
+            GameManager.Instance.SetGameState(GameManager.GameState.GameOver);
+            //SceneManager.LoadScene(2);
         }
     }
 }

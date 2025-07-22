@@ -4,24 +4,25 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    public GameState CurrentGameState { get; private set; } = GameState.Initial_Menu;
+    public GameState CurrentGameState { get; private set; }
 
     private void Awake()
     {
         if (Instance == null)
         {
-            Debug.Log("GameManager listo!");
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-     
+            Instance = this;           
             transform.GetChild(0).gameObject.SetActive(true);
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Debug.Log("GameManager ya creado, se destruye");
             Destroy(gameObject);
         }
+    }
+    private void Start()
+    {
+        SetGameState(GameState.Initial_Menu);
     }
     void Update()
     {
@@ -30,18 +31,6 @@ public class GameManager : MonoBehaviour
             SoundManager.Instance.PlaySounds(0);
             Instance.PauseGame();
         }
-    }
-
-    public void PlayableSceneLoad()
-    {
-        SceneManager.LoadScene(1);
-        SetGameState(CurrentGameState);
-    }
-
-    public void MainMenuSceneLoad()
-    {
-        SceneManager.LoadScene(0);
-        SetGameState(GameState.Initial_Menu);
     }
     public void SetGameState(GameState newState)
     {
@@ -52,27 +41,25 @@ public class GameManager : MonoBehaviour
         switch (newState)
         {
             case GameState.Initial_Menu:
-                Debug.Log("Estado del juego: Menu Inicial");
+                MusicManager.Instance.PlayMusic(0, 0.125f, true);
                 break;
             case GameState.Charging:
-                Debug.Log("Estado del juego: Cargando...");
                 break;
             case GameState.Playing:
+                MusicManager.Instance.PlayMusic(1, 0.125f, true);
                 Playing();
                 break;
             case GameState.Pause:
-                
-                Debug.Log("Estado del juego: Pausa");
-                //MusicManager.Instance.PlayMusic(1, .125f, true);
+                MusicManager.Instance.ChangeVolumen(0.05f);
                 PauseManager.Instance.MenuHallVisibility(true);
                 Time.timeScale = 0f;
                 break;
             case GameState.GameOver:
-                //Sonido muerte
+                MusicManager.Instance.PlayMusic(2, 0.125f, true);
                 SceneManager.LoadScene(2);
                 break;
             case GameState.Nivel_Completed:
-                Debug.Log("Estado del juego: Nivel Completado");
+                MusicManager.Instance.PlayMusic(3, 0.125f, true);
                 SceneManager.LoadScene(3);
                 break;
             default:
@@ -107,10 +94,18 @@ public class GameManager : MonoBehaviour
                 PauseManager.Instance.MenuHallVisibility(false);
             }
         }
-
-        Debug.Log("Estado del juego: Jugando");
         Time.timeScale = 1f;
-        //MusicaManager.Instance.PlayMusic(0, .125f, true);
+    }
+    public void PlayableSceneLoad()
+    {
+        SceneManager.LoadScene(1);
+        SetGameState(CurrentGameState);
+    }
+
+    public void MainMenuSceneLoad()
+    {
+        SceneManager.LoadScene(0);
+        SetGameState(GameState.Initial_Menu);
     }
     public enum GameState
     {

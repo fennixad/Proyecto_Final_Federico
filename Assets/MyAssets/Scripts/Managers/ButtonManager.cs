@@ -9,7 +9,7 @@ public class ButtonManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject confirmationMenu;
     public void Button_Play()
-    {
+    { 
         SceneManager.LoadScene(1);
         SoundManager.Instance.PlaySounds(0);
         GameManager.Instance.SetGameState(GameManager.GameState.Playing);
@@ -30,7 +30,7 @@ public class ButtonManager : MonoBehaviour
     }
 
     public void Button_Yes()
-    {
+    {  
         SoundManager.Instance.PlaySounds(0);
         SceneManager.LoadScene(0);
     }

@@ -409,7 +409,7 @@ public class Enemies : MonoBehaviour, IInteractable
     private void EnterChasingState()
     {
         navMeshAgent.isStopped = false;
-        navMeshAgent.speed = 2.5f;
+        navMeshAgent.speed = 3.5f;
         anim.SetFloat("Speed", 1f);
 
         if (fieldOfView?.currentTarget != null && navMeshAgent.isOnNavMesh)
@@ -484,7 +484,7 @@ public class Enemies : MonoBehaviour, IInteractable
     IEnumerator AttackAndGameOverCoroutine()
     {
         yield return new WaitForSeconds(1f); // Ajusta según la duración de la animación
-        SceneManager.LoadScene(2);
+        GameManager.Instance.SetGameState(GameManager.GameState.GameOver);
     }
 
     public enum EnemyState { Idle, Patrolling, Chasing, Stunned, Attacking }

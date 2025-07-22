@@ -14,7 +14,6 @@ public class SoundManager : MonoBehaviour
     }
     public void PlaySounds(int _index)
     {
-        Debug.Log("Sonido de clic");
         audioSource.PlayOneShot(sounds[_index]);
     }
 }
