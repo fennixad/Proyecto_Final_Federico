@@ -17,11 +17,16 @@ public class Door : MonoBehaviour, IInteractable
             {
                 if (playerInventory != null && playerInventory.HasKey(requiredKeyID))
                 {
+                    Debug.Log("Puerta: " + interactor.GetComponent<Transform>().tag);
                     if (interactor.transform.CompareTag("DoubleDoor"))
                     {
-                        OpenDoubleDOor(interactor);
+                        OpenDoubleDoor(interactor);
+                    } 
+                    else 
+                    {
+                        OpenDoor();
                     }
-                    OpenDoor();
+                        
                 }
                 else
                 {
@@ -32,7 +37,7 @@ public class Door : MonoBehaviour, IInteractable
             {
                 if (interactor.transform.CompareTag("DoubleDoor"))
                 {
-                    OpenDoubleDOor(interactor);
+                    OpenDoubleDoor(interactor);
                 }
                 OpenDoor();
             }
@@ -50,14 +55,26 @@ public class Door : MonoBehaviour, IInteractable
         GetComponent<Animator>().SetTrigger("Open");
     }
 
-    private void OpenDoubleDOor(GameObject interactor)
+    private void OpenDoubleDoor(GameObject interactor)
     {
         isOpen = true;
         Debug.Log($"La puerta doble {gameObject.name} se ha abierto.");
         interactor.transform.GetChild(0).GetComponent<Animator>().SetTrigger("Open");
         interactor.transform.GetChild(0).GetComponent<NavMeshObstacle>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
-        interactor.transform.GetChild(1).GetComponent<NavMeshObstacle>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
         interactor.transform.GetChild(1).GetComponent<Animator>().SetTrigger("Open");
+        interactor.transform.GetChild(1).GetComponent<NavMeshObstacle>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
+        /*
+        if (interactor.transform.GetChild(0).TryGetComponent(out Animator _animComp))
+        {
+            _animComp.SetTrigger("Open");
+            interactor.transform.GetChild(0).GetComponent<NavMeshObstacle>().enabled = false;
+        }
+        if (interactor.transform.GetChild(1).TryGetComponent(out Animator _animComp2))
+        {
+            _animComp2.SetTrigger("Open");
+            interactor.transform.GetChild(1).GetComponent<NavMeshObstacle>().enabled = false;
+        }
+        */
         interactor.GetComponent<Collider>().enabled = false; // Desactiva el collider de la puerta doble para evitar más interacciones
     }
     /*

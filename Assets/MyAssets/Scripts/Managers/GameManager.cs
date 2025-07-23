@@ -106,6 +106,7 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
         SetGameState(GameState.Initial_Menu);
+        Time.timeScale = 1f;
     }
     public enum GameState
     {
