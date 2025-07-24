@@ -23,6 +23,10 @@ public class ButtonManager : MonoBehaviour
             confirmationMenu.SetActive(true);
         }
     }
+    public void Button_Quit()
+    {
+        Application.Quit();
+    }
     public void Button_Resume()
     {
         SoundManager.Instance.PlaySounds(0);
@@ -33,6 +37,7 @@ public class ButtonManager : MonoBehaviour
     {  
         SoundManager.Instance.PlaySounds(0);
         SceneManager.LoadScene(0);
+        GameManager.Instance.SetGameState(GameManager.GameState.Initial_Menu);
     }
     public void Button_No()
     {

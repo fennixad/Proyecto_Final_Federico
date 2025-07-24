@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
         switch (newState)
         {
             case GameState.Initial_Menu:
+                Time.timeScale = 1;
                 MusicManager.Instance.PlayMusic(0, 0.125f, true);
                 break;
             case GameState.Charging:
